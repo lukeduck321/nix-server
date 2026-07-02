@@ -80,6 +80,9 @@
     ];
 
     initialPassword = "changeme";
+    
+    # ADD THIS: Configure shell and startup
+    shell = pkgs.bashInteractive;
   };
 
   ############################################################
@@ -111,7 +114,41 @@
     clevis
     clevis-tpm1
     cryptsetup
+
+    # ADD THIS: Fastfetch
+    fastfetch
   ];
+
+  ############################################################
+  ## BASH CONFIGURATION - RUN FASTFETCH ON LOGIN
+  ############################################################
+
+  # Option 1: System-wide bashrc (affects all users)
+  environment.etc."bash.bashrc".text = ''
+    # System-wide bashrc - runs for all users
+    
+    # Run fastfetch if available and not in a non-interactive shell
+    if command -v fastfetch &> /dev/null && [ -z "$FASTFETCH_ALREADY_RUN" ]; then
+      export FASTFETCH_ALREADY_RUN=1
+      fastfetch
+    fi
+  '';
+
+  # Option 2: User-specific bashrc (only for admin user)
+  # Uncomment this and comment out Option 1 if you only want it for admin
+  # environment.etc."bash.bashrc_local".text = ''
+  #   # User-specific bashrc for admin
+  #   if [ -f ~/.bashrc ]; then
+  #     . ~/.bashrc
+  #   fi
+  # '';
+  # 
+  # users.users.admin.shellInit = ''
+  #   # Run fastfetch on login for admin
+  #   if command -v fastfetch &> /dev/null; then
+  #     fastfetch
+  #   fi
+  # '';
 
   ############################################################
   ## SSH
