@@ -81,7 +81,7 @@
 
     initialPassword = "changeme";
     
-    # ADD THIS: Configure shell and startup
+    # Configure shell and startup
     shell = pkgs.bashInteractive;
   };
 
@@ -115,7 +115,7 @@
     clevis-tpm1
     cryptsetup
 
-    # ADD THIS: Fastfetch
+    # Fastfetch
     fastfetch
   ];
 
@@ -123,7 +123,6 @@
   ## BASH CONFIGURATION - RUN FASTFETCH ON LOGIN
   ############################################################
 
-  # Option 1: System-wide bashrc (affects all users)
   environment.etc."bash.bashrc".text = ''
     # System-wide bashrc - runs for all users
     
@@ -133,22 +132,6 @@
       fastfetch
     fi
   '';
-
-  # Option 2: User-specific bashrc (only for admin user)
-  # Uncomment this and comment out Option 1 if you only want it for admin
-  # environment.etc."bash.bashrc_local".text = ''
-  #   # User-specific bashrc for admin
-  #   if [ -f ~/.bashrc ]; then
-  #     . ~/.bashrc
-  #   fi
-  # '';
-  # 
-  # users.users.admin.shellInit = ''
-  #   # Run fastfetch on login for admin
-  #   if command -v fastfetch &> /dev/null; then
-  #     fastfetch
-  #   fi
-  # '';
 
   ############################################################
   ## SSH
@@ -292,8 +275,11 @@
     enable = true;
 
     tunnels = {
-      mytunnel = {
+      "YOUR-TUNNEL-ID-HERE" = {
         credentialsFile = "/etc/cloudflared/credentials.json";
+
+        # Optional: Set a custom tunnel name for easier reference
+        # tunnelName = "mytunnel";
 
         default = "http_status:404";
 
