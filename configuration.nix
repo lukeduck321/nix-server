@@ -14,34 +14,39 @@
   time.timeZone = "Australia/Adelaide";
 
   ############################################################
-  ## BOOTLOADER + AUTO ROLLBACK
+  ## BOOTLOADER (BOOT COUNTING COMMENTED OUT)
   ############################################################
 
   boot.loader.systemd-boot = {
     enable = true;
     configurationLimit = 30;
-    bootCounting.enable = true;
+    # bootCounting.enable = true;  # Commented out - was causing issues
+    # Optional: Add this if you want to re-enable later
+    # bootCounting = {
+    #   enable = true;
+    #   tries = 3;
+    # };
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
 
   ############################################################
-  ## LUKS + INITRD (REQUIRED FOR CLEVIS)
+  ## LUKS + INITRD (COMMENTED OUT - NOT USING ENCRYPTION)
   ############################################################
 
-  boot.initrd.systemd.enable = true;
+  # boot.initrd.systemd.enable = true;
 
-  boot.initrd.availableKernelModules = [
-    "cryptd"
-  ];
+  # boot.initrd.availableKernelModules = [
+  #   "cryptd"
+  # ];
 
-  boot.initrd.luks.devices = {
-    root = {
-      device = "/dev/disk/by-uuid/YOUR-LUKS-UUID-HERE";
-      preLVM = true;
-      allowDiscards = true;
-    };
-  };
+  # boot.initrd.luks.devices = {
+  #   root = {
+  #     device = "/dev/disk/by-uuid/YOUR-LUKS-UUID-HERE";
+  #     preLVM = true;
+  #     allowDiscards = true;
+  #   };
+  # };
 
   ############################################################
   ## NETWORKING
@@ -81,7 +86,7 @@
 
     initialPassword = "changeme";
     
-    # Configure shell and startup
+    # Configure shell for bash
     shell = pkgs.bashInteractive;
   };
 
@@ -110,10 +115,10 @@
     nginx
     cloudflared
 
-    # LUKS + TPM1 tools
-    clevis
-    clevis-tpm1
-    cryptsetup
+    # LUKS tools (commented out since not using encryption)
+    # clevis
+    # clevis-tpm1
+    # cryptsetup
 
     # Fastfetch
     fastfetch
@@ -277,7 +282,7 @@
     tunnels = {
       "YOUR-TUNNEL-ID-HERE" = {
         credentialsFile = "/etc/cloudflared/credentials.json";
-
+        
         # Optional: Set a custom tunnel name for easier reference
         # tunnelName = "mytunnel";
 
