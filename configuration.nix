@@ -21,11 +21,6 @@
     enable = true;
     configurationLimit = 30;
     # bootCounting.enable = true;  # Commented out - was causing issues
-    # Optional: Add this if you want to re-enable later
-    # bootCounting = {
-    #   enable = true;
-    #   tries = 3;
-    # };
   };
 
   boot.loader.efi.canTouchEfiVariables = true;
@@ -86,7 +81,6 @@
 
     initialPassword = "changeme";
     
-    # Configure shell for bash
     shell = pkgs.bashInteractive;
   };
 
@@ -120,7 +114,6 @@
     # clevis-tpm1
     # cryptsetup
 
-    # Fastfetch
     fastfetch
   ];
 
@@ -162,7 +155,7 @@
   };
 
   ############################################################
-  ## NGINX
+  ## NGINX - FIXED CONFIGURATION
   ############################################################
 
   services.nginx = {
@@ -182,33 +175,34 @@
 
         root = "/var/pintail/spin-click";
 
-        index = [ "index.html" "index.htm" "index.php" ];
+        locations = {
+          "/" = {
+            index = "index.html index.htm index.php";
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "/back_end/" = {
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/back_end/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "~ ^/back_end/(queue|inquiries)/" = {
+            extraConfig = "deny all;";
+          };
 
-        locations."~ ^/back_end/(queue|inquiries)/" = {
-          extraConfig = "deny all;";
-        };
+          "/admin/" = {
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/admin/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "~ ^/admin/(config|auth)\\.php$" = {
+            extraConfig = "deny all;";
+          };
 
-        locations."~ ^/admin/(config|auth)\\.php$" = {
-          extraConfig = "deny all;";
-        };
-
-        locations."~ \\.php$" = {
-          extraConfig = ''
-            fastcgi_pass unix:${config.services.phpfpm.pools.web.socket};
-            include ${pkgs.nginx}/conf/fastcgi.conf;
-          '';
+          "~ \\.php$" = {
+            extraConfig = ''
+              fastcgi_pass unix:${config.services.phpfpm.pools.web.socket};
+              include ${pkgs.nginx}/conf/fastcgi.conf;
+            '';
+          };
         };
       };
 
@@ -219,33 +213,34 @@
 
         root = "/var/www";
 
-        index = [ "index.html" "index.htm" "index.php" ];
+        locations = {
+          "/" = {
+            index = "index.html index.htm index.php";
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "/back_end/" = {
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/back_end/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "~ ^/back_end/(queue|inquiries)/" = {
+            extraConfig = "deny all;";
+          };
 
-        locations."~ ^/back_end/(queue|inquiries)/" = {
-          extraConfig = "deny all;";
-        };
+          "/admin/" = {
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/admin/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
+          "~ ^/admin/(config|auth)\\.php$" = {
+            extraConfig = "deny all;";
+          };
 
-        locations."~ ^/admin/(config|auth)\\.php$" = {
-          extraConfig = "deny all;";
-        };
-
-        locations."~ \\.php$" = {
-          extraConfig = ''
-            fastcgi_pass unix:${config.services.phpfpm.pools.web.socket};
-            include ${pkgs.nginx}/conf/fastcgi.conf;
-          '';
+          "~ \\.php$" = {
+            extraConfig = ''
+              fastcgi_pass unix:${config.services.phpfpm.pools.web.socket};
+              include ${pkgs.nginx}/conf/fastcgi.conf;
+            '';
+          };
         };
       };
 
@@ -256,17 +251,18 @@
 
         root = "/var/bang-on";
 
-        index = [ "index.html" ];
+        locations = {
+          "/" = {
+            index = "index.html";
+            tryFiles = "$uri $uri/ =404";
+          };
 
-        locations."/" = {
-          tryFiles = "$uri $uri/ =404";
-        };
-
-        locations."~* \\.(css|js|png|jpg|jpeg|gif|ico|svg|webp)$" = {
-          extraConfig = ''
-            expires 7d;
-            add_header Cache-Control "public";
-          '';
+          "~* \\.(css|js|png|jpg|jpeg|gif|ico|svg|webp)$" = {
+            extraConfig = ''
+              expires 7d;
+              add_header Cache-Control "public";
+            '';
+          };
         };
       };
     };
